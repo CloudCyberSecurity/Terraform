@@ -27,10 +27,10 @@ resource "aws_security_group" "prod_web" {
   	cidr_blocks     = ["0.0.0.0/0"]
   }
 egress {
-    from_port     = 0
-    to_port       = 0
-    protocol      = "-1"
-    cidr_blocks   = ["0.0.0.0/0"]
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
   }
 
 tags = {
@@ -39,22 +39,26 @@ tags = {
 }
 
 resource "aws_instance" "prod_web" {
-  ami = "ami-068478a870bb53228"
-  instance_type = "t2.micro"
+    count           = 2
+
+    ami             = "ami-068478a870bb53228"
+    instance_type   = "t2.micro"
 
   vpc_security_group_ids = [ 
     aws_security_group.prod_web.id
    ]
 
-tags = {
+tags    = {
     "Terraform" : "true"
   }
 }
 
+resource "aws_eip_association" "prod_web" {
+  instance_id   = aws_instance.prod_web.0.id
+  allocation_id = aws_eip.prod_web.id
+}
 resource "aws_eip" "prod_web" {
-    instance = aws_instance.prod_web.id
-
-  tags = {
+  tags          = {
     "Terraform" : "true"
   }
 }
